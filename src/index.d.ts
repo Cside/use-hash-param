@@ -7,4 +7,4 @@
 export default function useHashParam(
   key: string,
   defaultValue: string
-): [string, (value: string) => void];
+): [string, (value: string | ((prev: string) => string)) => void];
