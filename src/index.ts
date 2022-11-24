@@ -30,7 +30,10 @@ const setHashParam = (key: string, value: string) => {
   }
 };
 
-const useHashParam = (key: string, defaultValue: string) => {
+const useHashParam = (
+  key: string,
+  defaultValue: string
+): [string, (value: string | ((prev: string) => string)) => void] => {
   const [innerValue, setInnerValue] = useState(getHashParam(key, defaultValue));
 
   useEffect(() => {
