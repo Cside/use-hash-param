@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "target": "ESNext",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "jsx": "react",
+    "rootDir": "src",
+    "removeComments": true,
+    "declaration": true,
+    "declarationMap": true,
+    "module": "CommonJS"
+  }
+}
