@@ -37,7 +37,7 @@ const setHashParam = (key: string, value: string) => {
   }
 };
 
-const useHashParam = (
+export const useHashParam = (
   key: string,
   defaultValue: string
 ): [string, (value: string | ((prev: string) => string)) => void] => {
@@ -67,4 +67,56 @@ const useHashParam = (
 
   return [innerValue || defaultValue, setValue];
 };
-export default useHashParam;
+
+const serialize = JSON.stringify;
+const deserialize = JSON.parse;
+
+const getObjectHashParam = <T>(key: string, defaultValue: T): T => {
+  const param = getHashParam(key, "");
+  if (!param) return defaultValue;
+  try {
+    return deserialize(param) as T;
+  } catch (error) {
+    console.warn(
+      new SyntaxError(
+        `Failed to parse JSON ${param} of key "${key}".\n{} is used as an alternative parameter.`
+      )
+    );
+    setHashParam(key, "{}");
+    return {} as T;
+  }
+};
+
+export const useObjectHashParam = <T extends object>(
+  key: string,
+  defaultValue: T
+): [T, (value: T | ((prev: T) => T)) => void] => {
+  const [innerValue, setInnerValue] = useState(
+    getObjectHashParam(key, defaultValue)
+  );
+
+  useEffect(() => {
+    const handleHashChange = () => {
+      setInnerValue(getObjectHashParam(key, defaultValue));
+    };
+    handleHashChange();
+    window.addEventListener("hashchange", handleHashChange);
+    return () => window.removeEventListener("hashchange", handleHashChange);
+  }, [key]);
+
+  const setValue = useCallback(
+    (value: T | ((prev: T) => T)) => {
+      if (typeof value === "function") {
+        const newValue = value(getObjectHashParam(key, defaultValue));
+        setHashParam(key, serialize(newValue));
+        setInnerValue(newValue);
+      } else {
+        setHashParam(key, serialize(value));
+        setInnerValue(value);
+      }
+    },
+    [key]
+  );
+
+  return [innerValue || defaultValue, setValue];
+};
