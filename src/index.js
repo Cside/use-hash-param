@@ -23,7 +23,8 @@ const setHashParam = (key, value) => {
             searchParams.set(key, value);
         }
         const search = searchParams.toString();
-        window.location.hash = search ? `${prefix}?${search}` : prefix;
+        const hash = search ? `${prefix}?${search}` : prefix;
+        history.replaceState(null, "", location.href.replace(/(^[^#]+)#?(.*$)?/, (_, baseUrl) => hash ? `${baseUrl}#${hash}` : baseUrl));
     }
 };
 const useHashParam = (key, defaultValue) => {
@@ -36,10 +37,13 @@ const useHashParam = (key, defaultValue) => {
     }, [key]);
     const setValue = (0, react_1.useCallback)((value) => {
         if (typeof value === "function") {
-            setHashParam(key, value(getHashParam(key, defaultValue)));
+            const param = value(getHashParam(key, defaultValue));
+            setHashParam(key, param);
+            setInnerValue(param);
         }
         else {
             setHashParam(key, value);
+            setInnerValue(value);
         }
     }, [key]);
     return [innerValue || defaultValue, setValue];

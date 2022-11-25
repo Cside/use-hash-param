@@ -26,7 +26,14 @@ const setHashParam = (key: string, value: string) => {
     }
 
     const search = searchParams.toString();
-    window.location.hash = search ? `${prefix}?${search}` : prefix;
+    const hash = search ? `${prefix}?${search}` : prefix;
+    history.replaceState(
+      null,
+      "",
+      location.href.replace(/(^[^#]+)#?(.*$)?/, (_, baseUrl) =>
+        hash ? `${baseUrl}#${hash}` : baseUrl
+      )
+    );
   }
 };
 
@@ -47,9 +54,12 @@ const useHashParam = (
   const setValue = useCallback(
     (value: string | ((prev: string) => string)) => {
       if (typeof value === "function") {
-        setHashParam(key, value(getHashParam(key, defaultValue)));
+        const param = value(getHashParam(key, defaultValue));
+        setHashParam(key, param);
+        setInnerValue(param);
       } else {
         setHashParam(key, value);
+        setInnerValue(value);
       }
     },
     [key]
