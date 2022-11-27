@@ -1,6 +1,6 @@
 import React, { useLayoutEffect } from 'react';
 import { render } from '@testing-library/react';
-import useHashParam from '../src';
+import { useHashParam } from '../src';
 
 const GetterExample = () => {
   const [value] = useHashParam('value');
